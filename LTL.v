@@ -429,7 +429,7 @@ apply state_top in H; intuition.
 Qed.
 
 
-Theorem FP_U : forall π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ ф₂ ∨ (ф₁  ∧ X (ф₁ U ф₂)).
+Theorem FP_U : forall π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ ф₂ ∨ (ф₁ ∧ X (ф₁ U ф₂)).
 Proof.
 split.
 (* -> *)
