@@ -429,7 +429,7 @@ apply state_top in H; intuition.
 Qed.
 
 
-Theorem FP_U : forall π ф₁  ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ ф₂ ∨ (ф₁  ∧ X (ф₁ U ф₂)).
+Theorem FP_U : forall π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ ф₂ ∨ (ф₁  ∧ X (ф₁ U ф₂)).
 Proof.
 split.
 (* -> *)
@@ -483,7 +483,7 @@ apply lt_S_n; trivial.
 Qed.
 
 
-Lemma distr_or_and : forall π ф₁  ф₂ ф₃,
+Lemma distr_or_and : forall π ф₁ ф₂ ф₃,
                                     π ⊨ ф₁ ∨ (ф₂ ∧ ф₃) <-> π ⊨ (ф₁ ∨ ф₂) ∧ (ф₁ ∨ ф₃).
 Proof.
 split.
