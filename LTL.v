@@ -483,7 +483,7 @@ apply lt_S_n; trivial.
 Qed.
 
 
-Lemma distr_or_and : forall π ф₁  ф₂ ф₃, 
+Lemma distr_or_and : forall π ф₁  ф₂ ф₃,
                                     π ⊨ ф₁ ∨ (ф₂ ∧ ф₃) <-> π ⊨ (ф₁ ∨ ф₂) ∧ (ф₁ ∨ ф₃).
 Proof.
 split.
@@ -504,14 +504,14 @@ left; trivial.
 destruct H0.
 left; trivial.
 right; split.
-apply H. 
+apply H.
 apply H0.
 Qed.
 
 Corollary FP_U_or : forall π ф₁  ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂)).
 Proof.
 intros.
-assert (π ⊨ ф₂ ∨ (ф₁  ∧ X (ф₁ U ф₂)) <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂))).
+assert (π ⊨ ф₂ ∨ (ф₁ ∧ X (ф₁ U ф₂)) <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂))).
 apply distr_or_and.
 destruct H.
 split.
