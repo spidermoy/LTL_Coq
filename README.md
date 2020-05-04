@@ -7,7 +7,7 @@ LTL (Linear Temporal Logic) in Coq
 
 This repository contains a simple formalization of many LTL concepts and theorems.
 
-I used CoqIde 8.6.
+I used CoqIde 8.11.
 
 
 The script contains:
