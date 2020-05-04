@@ -10,32 +10,32 @@ Require Import Coq.Logic.FunctionalExtensionality.
 
 
 Definition State := nat.
-Definition At := string.
+Definition At    := string.
 
 
 Inductive PathF : Type :=
-  | Var     : At -> PathF
-  | Neg     : At -> PathF
+  | Var     : At    -> PathF
+  | Neg     : At    -> PathF
   | ConjP   : PathF -> PathF -> PathF
   | DisyP   : PathF -> PathF -> PathF
   | Until   : PathF -> PathF -> PathF
   | Release : PathF -> PathF -> PathF
   | X       : PathF -> PathF.
 
-Infix "∧" := ConjP (at level 20).
-Infix "∨" := DisyP (at level 20).
-Infix "U" := Until (at level 20).
+Infix "∧" := ConjP   (at level 20).
+Infix "∨" := DisyP   (at level 20).
+Infix "U" := Until   (at level 20).
 Infix "V" := Release (at level 20).
 
 Fixpoint negP (ф:PathF) : PathF :=
   match ф with
-  | Var a => Neg a
-  | Neg a => Var a
+  | Var a   => Neg a
+  | Neg a   => Var a
   | ф₁ ∧ ф₂ => (negP ф₁) ∨ (negP ф₂)
   | ф₁ ∨ ф₂ => (negP ф₁) ∧ (negP ф₂)
   | ф₁ U ф₂ => (negP ф₁) V (negP ф₂)
   | ф₁ V ф₂ => (negP ф₁) U (negP ф₂)
-  | X ф' => X (negP ф')
+  | X ф'    => X (negP ф')
   end.
 
 
@@ -51,34 +51,34 @@ Definition G ф := bot V ф.
 Definition Path := State -> (At -> bool).
 
 Definition path_sub (π:Path) (i:State) := π i.
-Definition path_up (π:Path) (j:State) := fun (s:State) => π (s+j).
+Definition path_up  (π:Path) (j:State) := fun (s:State) => π (s+j).
+
 
 Axiom state_bot : forall π s, (path_sub π s) EmptyString = false.
 Axiom state_top : forall π s, (path_sub π s) EmptyString = true -> False.
 
+
 Fixpoint semanticLTL (π:Path) (ф:PathF) :=
   match ф with
-  | Var a => (path_sub π 0) a = true
-  | Neg a => (path_sub π 0) a = false
+  | Var a   => (path_sub π 0) a = true
+  | Neg a   => (path_sub π 0) a = false
   | ф₁ ∧ ф₂ => (semanticLTL π ф₁) /\ (semanticLTL π ф₂)
   | ф₁ ∨ ф₂ => (semanticLTL π ф₁) \/ (semanticLTL π ф₂)
   | ф₁ U ф₂ => exists i, (semanticLTL (path_up π i) ф₂) /\
-                       (forall j, j<i -> semanticLTL (path_up π j) ф₁)
-  | ф₁ V ф₂ => (forall i, semanticLTL (path_up π i) ф₂) \/
-             (exists i, (semanticLTL (path_up π i) ф₁) /\
-             (forall j, j<=i -> semanticLTL (path_up π j) ф₂))
-  | X ф' => semanticLTL (path_up π 1) ф'
+                         (forall j, j < i -> semanticLTL (path_up π j) ф₁)
+  | ф₁ V ф₂ => (forall i, semanticLTL  (path_up π i) ф₂)  \/
+               (exists i, (semanticLTL (path_up π i) ф₁) /\
+               (forall j, j <= i -> semanticLTL (path_up π j) ф₂))
+  | X ф'    => semanticLTL (path_up π 1) ф'
   end.
 
 Infix "⊨" := semanticLTL (at level 40).
 
 
-Lemma n_eq_neq : forall n m:nat, n=m \/ n<>m.
+Lemma n_eq_neq : forall n m:nat, n = m \/ n <> m.
 Proof.
-assert (forall n m : nat, {n = m} + {n <> m}).
-  apply Nat.eq_dec.
 intros.
-destruct (H n m).
+destruct (Nat.eq_dec n m).
 left; trivial.
 right; trivial.
 Qed.
@@ -171,7 +171,7 @@ intros; trivial.
 Qed.
 
 Lemma path_comn_i_j : forall π i j,
-                         (path_up (path_up π i) j) = (path_up (path_up π j) i).
+                          (path_up (path_up π i) j) = (path_up (path_up π j) i).
 Proof.
 intros.
 unfold path_up.
@@ -327,7 +327,7 @@ apply Nat.min_glb_iff in H3.
 apply H3.
 Qed.
 
-Lemma path_plus_i_j : forall π i j, path_up (path_up π i) j = path_up π (i+j).
+Lemma path_plus_i_j : forall π i j, path_up (path_up π i) j = path_up π (i + j).
 Proof.
 intros.
 unfold path_up.
@@ -484,7 +484,7 @@ Qed.
 
 
 Lemma distr_or_and : forall π ф₁ ф₂ ф₃,
-                                    π ⊨ ф₁ ∨ (ф₂ ∧ ф₃) <-> π ⊨ (ф₁ ∨ ф₂) ∧ (ф₁ ∨ ф₃).
+                              π ⊨ ф₁ ∨ (ф₂ ∧ ф₃) <-> π ⊨ (ф₁ ∨ ф₂) ∧ (ф₁ ∨ ф₃).
 Proof.
 split.
 (* -> *)
@@ -508,7 +508,7 @@ apply H.
 apply H0.
 Qed.
 
-Corollary FP_U_or : forall π ф₁  ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂)).
+Corollary FP_U_or : forall π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂)).
 Proof.
 intros.
 assert (π ⊨ ф₂ ∨ (ф₁ ∧ X (ф₁ U ф₂)) <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂))).
@@ -524,7 +524,7 @@ apply H0; trivial.
 Qed.
 
 
-Theorem FP_R : forall π ф₁  ф₂, π ⊨ ф₁ V ф₂ <-> π ⊨ ф₂ ∧ (ф₁  ∨ (X (ф₁ V ф₂))).
+Theorem FP_R : forall π ф₁ ф₂, π ⊨ ф₁ V ф₂ <-> π ⊨ ф₂ ∧ (ф₁  ∨ (X (ф₁ V ф₂))).
 Proof.
 split.
 (* -> *)
@@ -560,7 +560,7 @@ intros.
 rewrite path_plus_i_j.
 apply H0.
 apply le_n_S in H1; trivial.
-(* -> *)
+(* <- *)
 intros.
 destruct H.
 simpl.
@@ -603,4 +603,3 @@ rewrite <- path_plus_i_j.
 apply H1.
 apply le_S_n; trivial.
 Qed.
-
