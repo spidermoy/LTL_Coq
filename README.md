@@ -7,7 +7,7 @@ LTL (Linear Temporal Logic) in Coq
 
 This repository contains a simple formalization of many LTL concepts and theorems.
 
-I used CoqIde 8.11.
+I used CoqIde 8.11.1
 
 
 The script contains:
@@ -16,7 +16,7 @@ The script contains:
     * Path definition
     * LTL semantic definition (π ⊨ ф)
     * Many LTL equivalences like:
-        * π ⊨ ф -> ~ π ⊨ negP ф
+        * π ⊨ ф -> ¬ π ⊨ negP ф
         * π ⊨ X (ф₁ ∨ ф₂) <-> π ⊨ X ф₁ ∨ X ф₂
         * π ⊨ X (ф₁ ∧ ф₂) <-> π ⊨ X ф₁ ∧ X ф₂
         * π ⊨ X (ф₁ U ф₂) <-> π ⊨ X ф₁ U X ф₂
