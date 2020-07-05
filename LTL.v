@@ -8,10 +8,17 @@ Require Import Bool.
 Require Import Arith.
 Require Import Coq.Logic.FunctionalExtensionality.
 
+Notation "∀ x .. y , P" := (forall x, .. (forall y, P) ..)
+  (at level 200, x binder, y binder, right associativity,
+  format "'[ ' '[ ' ∀ x .. y ']' , '/' P ']'") : type_scope.
+Notation "∃ x .. y , P" := (exists x, .. (exists y, P) ..)
+  (at level 200, x binder, y binder, right associativity,
+  format "'[ ' '[ ' ∃ x .. y ']' , '/' P ']'") : type_scope.
+Notation "¬ x" := (~x) (at level 75, right associativity) : type_scope.
+
 
 Definition State := nat.
 Definition At    := string.
-
 
 Inductive PathF : Type :=
   | Var     : At    -> PathF
@@ -54,8 +61,8 @@ Definition path_sub (π:Path) (i:State) := π i.
 Definition path_up  (π:Path) (j:State) := fun (s:State) => π (s+j).
 
 
-Axiom state_bot : forall π s, (path_sub π s) EmptyString = false.
-Axiom state_top : forall π s, (path_sub π s) EmptyString = true -> False.
+Axiom state_bot : ∀ π s, (path_sub π s) EmptyString = false.
+Axiom state_top : ∀ π s, (path_sub π s) EmptyString = true -> False.
 
 
 Fixpoint semanticLTL (π:Path) (ф:PathF) :=
@@ -64,18 +71,18 @@ Fixpoint semanticLTL (π:Path) (ф:PathF) :=
   | Neg a   => (path_sub π 0) a = false
   | ф₁ ∧ ф₂ => (semanticLTL π ф₁) /\ (semanticLTL π ф₂)
   | ф₁ ∨ ф₂ => (semanticLTL π ф₁) \/ (semanticLTL π ф₂)
-  | ф₁ U ф₂ => exists i, (semanticLTL (path_up π i) ф₂) /\
-                         (forall j, j < i -> semanticLTL (path_up π j) ф₁)
-  | ф₁ V ф₂ => (forall i, semanticLTL  (path_up π i) ф₂)  \/
-               (exists i, (semanticLTL (path_up π i) ф₁) /\
-               (forall j, j <= i -> semanticLTL (path_up π j) ф₂))
+  | ф₁ U ф₂ => ∃ i, (semanticLTL (path_up π i) ф₂) /\
+                         (∀ j, j < i -> semanticLTL (path_up π j) ф₁)
+  | ф₁ V ф₂ => (∀ i, semanticLTL  (path_up π i) ф₂)  \/
+               (∃ i, (semanticLTL (path_up π i) ф₁) /\
+               (∀ j, j <= i -> semanticLTL (path_up π j) ф₂))
   | X ф'    => semanticLTL (path_up π 1) ф'
   end.
 
 Infix "⊨" := semanticLTL (at level 40).
 
 
-Lemma n_eq_neq : forall n m:nat, n = m \/ n <> m.
+Lemma n_eq_neq : ∀ n m:nat, n = m \/ n <> m.
 Proof.
 intros.
 destruct (Nat.eq_dec n m).
@@ -84,7 +91,7 @@ right; trivial.
 Qed.
 
 
-Proposition negP_forms : forall ф π, π ⊨ ф -> ~ π ⊨ negP ф.
+Proposition negP_forms : ∀ ф π, π ⊨ ф -> ¬ π ⊨ negP ф.
 Proof.
 induction ф.
 (* a *)
@@ -155,7 +162,7 @@ apply IHф in H; trivial.
 Qed.
 
 
-Lemma distr_X_DisyP : forall π ф₁  ф₂, π ⊨ X (ф₁ ∨ ф₂) <-> π ⊨ X ф₁ ∨ X ф₂.
+Lemma distr_X_DisyP : ∀ π ф₁  ф₂, π ⊨ X (ф₁ ∨ ф₂) <-> π ⊨ X ф₁ ∨ X ф₂.
 Proof.
 split.
 intros; trivial.
@@ -163,14 +170,14 @@ intros; trivial.
 Qed.
 
 
-Lemma distr_X_ConjP : forall π ф₁  ф₂, π ⊨ X (ф₁ ∧ ф₂) <-> π ⊨ X ф₁ ∧ X ф₂.
+Lemma distr_X_ConjP : ∀ π ф₁  ф₂, π ⊨ X (ф₁ ∧ ф₂) <-> π ⊨ X ф₁ ∧ X ф₂.
 Proof.
 split.
 intros; trivial.
 intros; trivial.
 Qed.
 
-Lemma path_comn_i_j : forall π i j,
+Lemma path_comn_i_j : ∀ π i j,
                           (path_up (path_up π i) j) = (path_up (path_up π j) i).
 Proof.
 intros.
@@ -183,7 +190,7 @@ pattern (j+i); rewrite Nat.add_comm; trivial.
 Qed.
 
 
-Lemma distr_X_U : forall π ф₁  ф₂, π ⊨ X (ф₁ U ф₂) <-> π ⊨ X ф₁ U X ф₂.
+Lemma distr_X_U : ∀ π ф₁  ф₂, π ⊨ X (ф₁ U ф₂) <-> π ⊨ X ф₁ U X ф₂.
 Proof.
 split.
 (* -> *)
@@ -208,7 +215,7 @@ apply H; trivial.
 Qed.
 
 
-Lemma distr_F_DisyP : forall π ф₁  ф₂, π ⊨ F (ф₁ ∨ ф₂) <-> π ⊨ F ф₁ ∨ F ф₂.
+Lemma distr_F_DisyP : ∀ π ф₁  ф₂, π ⊨ F (ф₁ ∨ ф₂) <-> π ⊨ F ф₁ ∨ F ф₂.
 Proof.
 split.
 (* -> *)
@@ -233,9 +240,9 @@ trivial.
 Qed.
 
 
-Lemma min_n_m : forall n m, (min n m = n) \/ (min n m = m).
+Lemma min_n_m : ∀ n m, (min n m = n) \/ (min n m = m).
 Proof.
-assert (forall n m : nat, {Nat.min n m = n} + {Nat.min n m = m}).
+assert (∀ n m : nat, {Nat.min n m = n} + {Nat.min n m = m}).
   apply Nat.min_dec.
 intros.
 destruct (H n m).
@@ -244,7 +251,7 @@ right; trivial.
 Qed.
 
 
-Lemma distr_G_ConjP : forall π ф₁  ф₂, π ⊨ G (ф₁ ∧ ф₂) <-> π ⊨ G ф₁ ∧ G ф₂.
+Lemma distr_G_ConjP : ∀ π ф₁  ф₂, π ⊨ G (ф₁ ∧ ф₂) <-> π ⊨ G ф₁ ∧ G ф₂.
 Proof.
 split.
 (* -> *)
@@ -327,7 +334,7 @@ apply Nat.min_glb_iff in H3.
 apply H3.
 Qed.
 
-Lemma path_plus_i_j : forall π i j, path_up (path_up π i) j = path_up π (i + j).
+Lemma path_plus_i_j : ∀ π i j, path_up (path_up π i) j = path_up π (i + j).
 Proof.
 intros.
 unfold path_up.
@@ -338,7 +345,7 @@ rewrite plus_assoc_reverse; trivial.
 Qed.
 
 
-Lemma path_sub_j_0 : forall π j, path_sub (path_up π j) 0 = path_sub π j.
+Lemma path_sub_j_0 : ∀ π j, path_sub (path_up π j) 0 = path_sub π j.
 Proof.
 intros.
 unfold path_sub.
@@ -347,7 +354,7 @@ rewrite plus_O_n; trivial.
 Qed.
 
 
-Lemma path_up_0 : forall π, path_up π 0 = π.
+Lemma path_up_0 : ∀ π, path_up π 0 = π.
 Proof.
 intros.
 unfold path_up.
@@ -357,7 +364,7 @@ rewrite Nat.add_0_r; trivial.
 Qed.
 
 
-Lemma idem_F : forall π ф, π ⊨ F (F ф) <-> π ⊨ F ф.
+Lemma idem_F : ∀ π ф, π ⊨ F (F ф) <-> π ⊨ F ф.
 Proof.
 split.
 (* -> *)
@@ -390,7 +397,7 @@ apply H0; trivial.
 Qed.
 
 
-Lemma idem_G : forall π ф, π ⊨ G (G ф) <-> π ⊨ G ф.
+Lemma idem_G : ∀ π ф, π ⊨ G (G ф) <-> π ⊨ G ф.
 Proof.
 split.
 (* -> *)
@@ -429,7 +436,7 @@ apply state_top in H; intuition.
 Qed.
 
 
-Theorem FP_U : forall π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ ф₂ ∨ (ф₁ ∧ X (ф₁ U ф₂)).
+Theorem FP_U : ∀ π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ ф₂ ∨ (ф₁ ∧ X (ф₁ U ф₂)).
 Proof.
 split.
 (* -> *)
@@ -483,7 +490,7 @@ apply lt_S_n; trivial.
 Qed.
 
 
-Lemma distr_or_and : forall π ф₁ ф₂ ф₃,
+Lemma distr_or_and : ∀ π ф₁ ф₂ ф₃,
                               π ⊨ ф₁ ∨ (ф₂ ∧ ф₃) <-> π ⊨ (ф₁ ∨ ф₂) ∧ (ф₁ ∨ ф₃).
 Proof.
 split.
@@ -508,7 +515,7 @@ apply H.
 apply H0.
 Qed.
 
-Corollary FP_U_or : forall π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂)).
+Corollary FP_U_or : ∀ π ф₁ ф₂, π ⊨ ф₁ U ф₂ <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂)).
 Proof.
 intros.
 assert (π ⊨ ф₂ ∨ (ф₁ ∧ X (ф₁ U ф₂)) <-> π ⊨ (ф₂ ∨ ф₁) ∧ (ф₂ ∨ X (ф₁ U ф₂))).
@@ -524,7 +531,7 @@ apply H0; trivial.
 Qed.
 
 
-Theorem FP_R : forall π ф₁ ф₂, π ⊨ ф₁ V ф₂ <-> π ⊨ ф₂ ∧ (ф₁  ∨ (X (ф₁ V ф₂))).
+Theorem FP_R : ∀ π ф₁ ф₂, π ⊨ ф₁ V ф₂ <-> π ⊨ ф₂ ∧ (ф₁  ∨ (X (ф₁ V ф₂))).
 Proof.
 split.
 (* -> *)
