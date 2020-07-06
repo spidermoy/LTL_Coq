@@ -67,16 +67,16 @@ Axiom state_top : ∀ π s, (path_sub π s) EmptyString = true -> False.
 
 Fixpoint semanticLTL (π:Path) (ф:PathF) :=
   match ф with
-  | Var a   => (path_sub π 0) a = true
-  | Neg a   => (path_sub π 0) a = false
+  | Var a => (path_sub π 0) a = true
+  | Neg a => (path_sub π 0) a = false
   | ф₁ ∧ ф₂ => (semanticLTL π ф₁) /\ (semanticLTL π ф₂)
   | ф₁ ∨ ф₂ => (semanticLTL π ф₁) \/ (semanticLTL π ф₂)
   | ф₁ U ф₂ => ∃ i, (semanticLTL (path_up π i) ф₂) /\
                          (∀ j, j < i -> semanticLTL (path_up π j) ф₁)
-  | ф₁ V ф₂ => (∀ i, semanticLTL  (path_up π i) ф₂)  \/
-               (∃ i, (semanticLTL (path_up π i) ф₁) /\
-               (∀ j, j <= i -> semanticLTL (path_up π j) ф₂))
-  | X ф'    => semanticLTL (path_up π 1) ф'
+  | ф₁ V ф₂ => (∀ i, semanticLTL  (path_up π i) ф₂) \/
+             (∃ i, (semanticLTL (path_up π i) ф₁) /\
+             (∀ j, j <= i -> semanticLTL (path_up π j) ф₂))
+  | X ф'  => semanticLTL (path_up π 1) ф'
   end.
 
 Infix "⊨" := semanticLTL (at level 40).
